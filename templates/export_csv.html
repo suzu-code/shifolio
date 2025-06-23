@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>CSV出力</title>
+    <link rel="stylesheet" href="/static/export_csv.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+
+    <nav class="sidebar">
+      <img src="{{ url_for('static', filename='シフト管理アプリロゴ2.png') }}" alt="Shifolio ロゴ">
+      <ul>
+        <li><a href="{{ url_for('add_staff', origin='week', start_date=today) }}">スタッフ追加</a></li>
+        <li><a href="{{ url_for('staff_list') }}">スタッフ管理</a></li>
+        <li><a href="{{ url_for('export_csv') }}" class="active">CSV出力</a></li>
+        <li><a href="{{ url_for('week_view', date=today) }}">シフト管理</a></li>
+        <li><a href="{{ url_for('send_shift') }}" >シフトメール送信</a></li>
+        <li><a href="#">お問い合わせ</a></li>
+        <li><a href="#">よくある質問</a></li>
+        <li><a href="{{ url_for('logout') }}">ログアウト</a></li>
+      </ul>
+    </nav>
+
+
+    <main class="main-content">
+      <h1>シフトCSV出力</h1>
+      <form method="post" class="post">
+          <label for="export_start_date">開始日:</label>
+          <input type="date" name="export_start_date" required><br><br>
+          <label for="export_end_date">終了日:</label>
+          <input type="date" name="export_end_date" required><br><br>
+          <button type="submit" class="display_button">CSV出力</button>
+      </form>
+
+    </main>
+  </div>
+</body>
+</html>
+

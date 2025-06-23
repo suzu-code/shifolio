@@ -1,0 +1,452 @@
+body {
+  margin: 0;
+  font-family: 'Noto Sans JP', 'Arial', sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; 
+}
+
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+
+.sidebar {
+  width: 200px;
+  max-width: 200px;
+  min-width: 200px;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e5e5;
+  padding: 20px 16px;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.03); 
+}
+
+.sidebar img {
+  width: 120px;
+  margin-bottom: 40px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin-left: 30px;
+  margin-top: 3px;
+}
+
+.sidebar li {
+  margin-bottom: 18px;
+}
+
+.sidebar a {
+  text-decoration: none;
+  font-size: 13px;
+  color: #666;
+  transition: color 0.3s;
+}
+
+.sidebar a.active,
+.sidebar a:hover {
+  color: #007aff;
+  font-weight: bold;
+}
+
+/* サイドバー下部企業名 */
+.sidebar-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 13px;
+  height: 13px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+}
+
+
+
+
+
+
+
+
+
+
+.top-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.start-date-box {
+  margin-top: -25px;
+  margin-right: 30px;
+}
+
+.start-date-box .label {
+  font-size: 15px;
+  color: green;
+  margin-bottom: 2px;
+}
+
+.start-date-box .date-display {
+  font-size: 14px;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.start-date-box .date-display span:not(.kannzi) {
+  font-size: 25px;
+  color: #000;
+}
+
+.start-date-box .kannzi {
+  font-size: 21px;
+  margin-right: 4px;
+  margin-left: 0;
+  margin-bottom: -2px;
+}
+
+.date_input {
+  margin-left: 20px;
+  border: none;
+  padding: 5px;
+  border-radius: 3px;
+  background-color: #dce7f7;
+  color: #007aff;
+}
+
+
+.toggle-container {
+  display: flex;
+  background-color: #eef3fa;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.toggle-container a {
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #0066d6;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+
+
+.toggle-one-day{
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background-color: #dce7f7;
+  color: #007aff;
+  text-decoration: none;
+}
+
+.toggle-week,
+.toggle-month {
+  background-color: transparent;
+}
+
+
+
+
+
+.shift-table th {
+  background-color: #f0f4f8;
+  font-weight: 500;
+  color: #555;
+  min-width: 120px;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* ポップアップフォーム */
+.menu-popup {
+  width: 160px;
+  border-radius: 10px;
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+
+
+.menu-popup input[type="time"] {
+  width: 70px;
+  font-size: 12px;
+  padding: 4px 6px;
+  margin-bottom: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.menu-popup button {
+  width: 100%;
+  padding: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+}
+
+.save_button {
+  background-color: #007aff;
+  color: white;
+}
+
+.delete_button {
+  background-color: #ff4d4f;
+  color: white;
+  margin-top: 13px;
+}
+
+.cancel_button {
+  background-color: #ccc;
+  color: #333;
+}
+
+
+
+
+button {
+  font-size: 10px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+
+
+.display_button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.display_button:hover {
+  background-color: #3b9441;
+}
+
+
+
+
+
+.shift-table td:first-child,
+.shift-table th:first-child {
+  text-align: center;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 160px;
+  white-space: nowrap;
+}
+
+
+
+
+/* htmlに入ってたやつ */
+.shift-container {
+  flex-grow: 1;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+
+
+.shift-table {
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  font-size: 12px;
+  table-layout: fixed;
+  width: 100%;
+  min-width: 1200px;
+  border-collapse: collapse;
+}
+
+
+
+
+
+
+
+
+.shift-table th,
+.shift-table td {
+  text-align: center;
+  height: 25px;
+  border: 1px solid #ccc;
+  padding: 5px;
+  vertical-align: top;
+}
+
+
+
+
+.shift-bar {
+  position: absolute;
+  height: 40px;
+  background: linear-gradient(90deg, #FFA3A3 0%, #FF6684 100%);
+  border-radius: 8px;
+  color: white;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+
+
+.plus-button, .dots-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #555;
+  cursor: pointer;
+}
+
+
+
+.plus-button {
+  background: #ffffff;
+  border: none;
+  border-radius: 50%;
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  margin: auto;
+  display: block;
+  color: #888;
+  margin-left: 482px;
+}
+
+
+.dots-button {
+  position: absolute;
+  bottom: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  margin-bottom: 17px;
+  margin-top: 3px;
+  margin-right: 5px;
+  right: 4px;
+	color: white !important;
+	font-size: 13px;
+}
+
+
+
+
+.hidden {
+  display: none;
+}
+
+
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+  height: 100vh;
+	margin-top: 30px;
+	margin-left: 10px;
+}
+
+
+
+
+.staff-name{
+	width: 100px;
+}
+
+
+
+
+.timeline-hour-labels{
+  display: flex;
+  justify-content: space-between;
+  color: #666;
+  margin-bottom: 5px;
+	width: 1030px;
+	margin-left: 165px;
+	font-size: 10px;
+	margin-top: 30px;
+}
+
+
+
+
+
+.timeline {
+  position: relative;
+  height: 40px;
+  background: repeating-linear-gradient(to right, #f8f8f8, #f8f8f8 1px, #fff 1px, #fff calc(100% / 24));
+  min-width: 1000px;
+	margin-left: 40px;
+}
+
+
+
+.shift-table-wrapper {
+  max-height: calc(100vh - 225px); /* 調整したい高さに */
+  overflow-y: auto;
+  border: 1px solid #ddd;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

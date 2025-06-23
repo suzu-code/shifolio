@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>スタッフ追加</title>
+  <link rel="stylesheet" href="/static/add_staff.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <nav class="sidebar">
+      <img src="{{ url_for('static', filename='シフト管理アプリロゴ2.png') }}" alt="Shifolio ロゴ">
+      <ul>
+        <li><a href="{{ url_for('add_staff', origin='week', start_date=request.args.get('start_date', '')) }}" class="active">スタッフ追加</a></li>
+        <li><a href="{{ url_for('staff_list') }}">スタッフ管理</a></li>
+        <li><a href="{{ url_for('export_csv') }}">CSV出力</a></li>
+        <li><a href="{{ url_for('week_view', date=today) }}">シフト管理</a></li>
+        <li><a href="{{ url_for('send_shift') }}">シフトメール送信</a></li>
+        <li><a href="#">お問い合わせ</a></li>
+        <li><a href="#">よくある質問</a></li>
+        <li><a href="{{ url_for('logout') }}" method="get">ログアウト</a></li>
+      </ul>
+    </nav>
+
+    <main class="main-content">
+      <h1>スタッフ追加</h1>
+      <form method="POST">
+        <div class="shift-form">
+          <label>名前: <input type="text" name="name" required></label><br>
+          <label>役職: <input type="text" name="position"></label>
+          <label>メールアドレス: <input type="email" name="email"></label>
+          <label>週の最大勤務日数: <input type="number" name="max_days" min="0"></label>
+
+          <div>
+            <p>勤務できる曜日:</p>
+            {% for day in ["月", "火", "水", "木", "金", "土", "日"] %}
+              <label><input type="checkbox" name="available_days" value="{{ day }}">{{ day }}</label>
+            {% endfor %}
+          </div>
+
+          <label><input type="checkbox" name="can_edit"> シフト編集可能</label>
+
+          <input type="hidden" name="origin" value="{{ request.args.get('origin', 'index') }}">
+          <input type="hidden" name="start_date" value="{{ request.args.get('start_date', '') }}">
+          <button type="submit" class="save_button">追加</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</body>
+</html>
+

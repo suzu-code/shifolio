@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>シフト管理システム</title>
+  <link rel="stylesheet" href="/static/test.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="container">
+    <nav class="sidebar">
+      <img src="{{ url_for('static', filename='シフト管理アプリロゴ2.png') }}" alt="Shifolio ロゴ" />
+      <ul>
+        <li><a href="{{ url_for('add_staff', origin='week', start_date=dates[0].strftime('%Y-%m-%d')) }}">スタッフ追加</a></li>
+        <li><a href="{{ url_for('staff_list') }}">スタッフ管理</a></li>
+        <li><a href="{{ url_for('export_csv') }}">CSV出力</a></li>
+        <li><a href="" class="active">シフト管理</a></li>
+        <li><a href="{{ url_for('send_shift') }}">シフトメール送信</a></li>
+        <li><a href="#">お問い合わせ</a></li>
+        <li><a href="#">よくある質問</a></li>
+        <li><a href="{{ url_for('logout') }}">ログアウト</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <span class="status-dot"></span>
+        <span class="company-name">{{ session.get('company_name', '企業名未設定') }}</span>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <div class="shift-container">
+        <div class="top-controls">
+          {% if start_date %}
+          <div class="start-date-box">
+            <div class="label">開始日</div>
+            <div class="date-display">
+              <span class="year">{{ start_date[:4] }}</span><span class="kannzi">年</span>
+              <span class="month">{{ start_date[5:7] }}</span><span class="kannzi">月</span>
+              <span class="month">{{ start_date[8:] }}</span><span class="kannzi">日</span>
+            </div>
+          </div>
+          {% endif %}
+          <div class="toggle-container">
+            <a href="{{ url_for('week_view', date=dates[0].strftime('%Y-%m-%d')) }}" class="toggle-week">1週間表示</a>
+            <a href="{{ url_for('month_view', date=dates[0].strftime('%Y-%m-%d')) }}" class="toggle-month">1ヶ月表示</a>
+            <a href="{{ url_for('one_day_view', date=dates[0].strftime('%Y-%m-%d')) }}" class="toggle-one_day">1日表示</a>
+          </div>
+          <form method="POST" action="{{ url_for('index') }}" style="display: flex; align-items: center; gap: 10px">
+              <input type="date" name="date" required class="date_input" />
+            <button type="submit" class="display_button">表示</button>
+          </form>
+        </div>
+
+        <div class="shift-table-wrapper">
+          <section class="shift-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>名前</th>
+                  {% for d in dates_with_meta %}
+                  <th>{{ d.date.strftime("%m/%d") }} （<span class="{{ d.cls }}">{{ d.kanji }}</span>）</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for s in staff %}
+                <tr>
+                  <td>
+                    <div>{{ s[1] }}</div>
+                    <div class="staff-info">最大: {{ s[3] }}日<br />希望: {{ s[4] }}</div>
+                  </td>
+                  {% for d in dates %}
+                  <td class="shift-cell">
+                    {% set shift = shifts[s[0]][d.strftime("%Y-%m-%d")] %}
+                    {% if shift %}
+                    <div class="saved_shift">
+                      {{ shift[0] }} - {{ shift[1] }}
+                      
+
+                      <button class="dots-button"
+                        data-staff="{{ s[0] }}"
+                        data-date="{{ d.strftime('%Y-%m-%d') }}"
+                        data-start="{{ shift[0] }}"
+                        data-end="{{ shift[1] }}"
+                        onclick="handleEditClick(this)">…</button>
+
+                    </div>
+                    {% else %}
+                   
+                    
+                    
+                    <button class="plus-button"
+                      data-staff="{{ s[0] }}"
+                      data-date="{{ d.strftime('%Y-%m-%d') }}"
+                      onclick="handleNewClick(this)">＋</button>
+
+                    {% endif %}
+                  </td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ポップアップ -->
+  <div id="popup" class="menu-popup hidden">
+    <h3 id="popup-title">シフト追加</h3>
+    <form id="popup-form" method="POST" action="/add_shift">
+      <input type="hidden" id="popup-staff-id" name="staff_id" />
+      <input type="hidden" id="popup-date" name="date" />
+      <input type="hidden" name="origin" value="week" />
+      <input type="hidden" name="start_date" value="{{ dates[0].strftime('%Y-%m-%d') }}" />
+
+      <label>開始</label>
+      <input type="time" id="popup-start-time" name="start_time" required />
+      <br />
+      <label>終了</label>
+      <input type="time" id="popup-end-time" name="end_time" required />
+
+      <div style="margin-top: 10px">
+        <button type="submit" class="save_button">保存</button>
+      </div>
+    </form>
+
+    <form method="POST" action="/delete_shift" onsubmit="return confirm('このシフトを削除しますか？');"
+      style="display:inline">
+      <input type="hidden" name="staff_id" id="delete-staff-id" />
+      <input type="hidden" name="date" id="delete-date" />
+      <input type="hidden" name="origin" value="week" />
+      <input type="hidden" name="start_date" value="{{ dates[0].strftime('%Y-%m-%d') }}" />
+      <button type="submit" id="popup-delete" class="delete_button">削除</button>
+    </form>
+
+    <button type="button" onclick="closePopup()">キャンセル</button>
+  </div>
+
+  <script>
+    function openEditPopup(staffId, date, startTime, endTime, event) {
+      const popup = document.getElementById("popup");
+      document.getElementById("popup-form").action = "/add_shift";
+      document.getElementById("popup-staff-id").value = staffId;
+      document.getElementById("popup-date").value = date;
+      document.getElementById("popup-start-time").value = startTime;
+      document.getElementById("popup-end-time").value = endTime;
+      document.getElementById("popup-title").textContent = "シフト編集";
+
+      // 削除用フォームの値セットと表示
+      document.getElementById("delete-staff-id").value = staffId;
+      document.getElementById("delete-date").value = date;
+      document.getElementById("popup-delete").classList.remove("hidden");
+
+      const rect = event.target.closest(".shift-cell").getBoundingClientRect();
+      popup.style.position = "absolute";
+      popup.style.top = `${rect.bottom + window.scrollY + 5}px`;
+      popup.style.left = `${rect.left + window.scrollX}px`;
+
+      popup.classList.remove("hidden");
+    }
+
+    function openNewPopup(staffId, date, event) {
+      const popup = document.getElementById("popup");
+      document.getElementById("popup-form").action = "/add_shift";
+      document.getElementById("popup-staff-id").value = staffId;
+      document.getElementById("popup-date").value = date;
+      document.getElementById("popup-start-time").value = "";
+      document.getElementById("popup-end-time").value = "";
+      document.getElementById("popup-title").textContent = "シフト追加";
+
+      // 削除ボタン非表示
+      document.getElementById("popup-delete").classList.add("hidden");
+
+      const rect = event.target.closest(".shift-cell").getBoundingClientRect();
+      popup.style.position = "absolute";
+      popup.style.top = `${rect.bottom + window.scrollY + 5}px`;
+      popup.style.left = `${rect.left + window.scrollX}px`;
+
+      popup.classList.remove("hidden");
+    }
+
+    function closePopup() {
+      document.getElementById("popup").classList.add("hidden");
+    }
+
+    // ポップアップ外クリックで閉じる
+    window.addEventListener("click", function (e) {
+      const popup = document.getElementById("popup");
+      if (
+        !popup.contains(e.target) &&
+        !e.target.classList.contains("plus-button") &&
+        !e.target.classList.contains("dots-button")
+      ) {
+        popup.classList.add("hidden");
+      }
+    });
+
+
+// ここからポップアップ出すために必要
+    function handleEditClick(button) {
+    const staffId = button.getAttribute("data-staff");
+    const date = button.getAttribute("data-date");
+    const startTime = button.getAttribute("data-start");
+    const endTime = button.getAttribute("data-end");
+
+    openEditPopup(staffId, date, startTime, endTime, event);
+  }
+
+  function handleNewClick(button) {
+    const staffId = button.getAttribute("data-staff");
+    const date = button.getAttribute("data-date");
+
+    openNewPopup(staffId, date, event);
+  }
+  </script>
+</body>
+</html>

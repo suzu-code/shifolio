@@ -1,0 +1,22 @@
+# 機密情報やAPIキー
+.env
+resend_config.py
+
+# データベースファイル
+shift.db
+
+# Pythonキャッシュ
+__pycache__/
+*.pyc
+
+# VSCodeの設定（開発環境依存）
+.vscode/
+
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+

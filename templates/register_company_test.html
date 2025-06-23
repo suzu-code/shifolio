@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ログイン</title>
+    <link rel="stylesheet" href="/static/login.css">
+</head>
+<body>
+  <div class="login-container">
+    <img src="{{ url_for('static', filename='シフト管理アプリロゴ2.png') }}" alt="Shifolio ロゴ">
+    <h2>企業登録</h2>
+
+    <form method="POST" action="{{ url_for('register_company') }}">
+         <label>企業名</label><br>
+         <input type="text" name="name" required><br><br>
+
+         <label>パスワード</label><br>
+        <input type="password" name="password" required><br><br>
+
+         <button type="submit">登録</button>
+     </form>
+    <br>
+    <a href="{{ url_for('login') }}">ログインはこちら</a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>スタッフ管理</title>
+  <link rel="stylesheet" href="/static/staff_list.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <nav class="sidebar">
+      <img src="{{ url_for('static', filename='シフト管理アプリロゴ2.png') }}" alt="Shifolio ロゴ">
+      <ul>
+        <li><a href="{{ url_for('add_staff', origin='week', start_date=dates[0].strftime('%Y-%m-%d')) }}">スタッフ追加</a></li>
+        <li><a href="{{ url_for('staff_list') }}" class="active">スタッフ管理</a></li>
+        <li><a href="{{ url_for('export_csv') }}">CSV出力</a></li>
+        <li><a href="{{ url_for('week_view', date=today) }}">シフト管理</a></li>
+        <li><a href="{{ url_for('send_shift') }}">シフトメール送信</a></li>
+        <li><a href="#">お問い合わせ</a></li>
+        <li><a href="#">よくある質問</a></li>
+      
+
+        <li><a href="{{ url_for('logout') }}"method="get">ログアウト</a></li>
+      </ul>
+    </nav>
+
+    <main class="main-content">
+      <h1>スタッフ管理画面</h1>
+      <table border="1" class="staff-table">
+  <thead>
+    <tr>
+      <th>名前</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for staff in staffs %}
+    <tr>
+      <td>{{ staff.name }}</td>
+      <td>
+        <!-- 削除ボタン -->
+        <form method="post" action="{{ url_for('staff_delete', staff_id=staff.id) }}" onsubmit="return confirm('本当に削除しますか？');" style="display:inline;">
+          <button type="submit" class="delete-button">削除</button>
+        </form>
+
+        <!-- 表示・非表示切替ボタン -->
+        {% if staff.visible == 1 %}
+        <form method="post" action="{{ url_for('staff_hide', staff_id=staff.id) }}" style="display:inline;">
+          <button type="submit" class="hide-button">非表示</button>
+        </form>
+        {% else %}
+        <form method="post" action="{{ url_for('staff_show', staff_id=staff.id) }}" style="display:inline;">
+          <button type="submit" class="show-button">再表示</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+    </main>
+  </div>
+</body>
+</html>
+
+
