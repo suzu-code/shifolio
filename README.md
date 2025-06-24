@@ -3,8 +3,8 @@
 ## 🔍 概要
 従業員のシフト管理を効率化するWebアプリです。管理者はシフトを簡単に入力・編集でき、1週間・1ヶ月・1日単位で表示。CSV出力やメール送信も可能でシフト管理の手間を減らします。
 
-## 🚀 URL
-（デプロイ予定）
+## 🌐 URL
+[https://shifolio.vercel.app](https://shifolio.vercel.app)
 
 ## 🎯 開発背景
 私の昔勤めていたアルバイト先では店長がExcelでシフトを管理しており手間が多そうに見えたので、もし使って貰えるとしたらと考え効率化を目指して開発しました。
@@ -28,9 +28,9 @@
 ## 🔧 使用技術
 - フロントエンド：HTML / CSS / JavaScript  
 - バックエンド：Python (Flask)  
-- データベース：MySQL  
+- データベース：PostgreSQL（[Neon](https://neon.tech/)）    
 - メール送信：ResendAPI  
-- インフラ：Vercel（予定）
+- インフラ：Vercel
 
 ## 🛠 工夫、挑戦した点
 - ログイン機能の実装  
@@ -47,40 +47,35 @@
 
 
 
+## 🗃️ データベース設定（Neon 使用）
 
-## 🗃️ データベース設定（MySQL）
+このアプリでは Neon（PostgreSQL）を使用しています。
 
-このアプリは MySQL を使用しています。
+### 1. Neon アカウントを作成し、プロジェクトを作成
 
-### 1. データベースの作成
+- [https://neon.tech](https://neon.tech) で無料アカウントを作成
+- プロジェクト作成後、「Connection string」を取得してください（例：`postgresql://username:password@host/dbname`）
 
-MySQL にログインし、以下のコマンドを実行してデータベースを作成してください：
+### 2. `.env` の設定（環境変数）
 
-```sql
-CREATE DATABASE shift_app_db DEFAULT CHARACTER SET utf8mb4;
-```
-
-### 2. 接続情報の設定
-
-.env ファイルを作成し、以下を記述してください：
+プロジェクトのルートに `.env` ファイルを作成し、以下を記述：
 
 ```env
-DB_HOST=localhost
-DB_USER=your_mysql_user
-DB_PASSWORD=your_mysql_password
-DB_NAME=shift_app_db;
+DATABASE_URL=postgresql://username:password@your-neon-db.neon.tech/dbname
+RESEND_API_KEY=your-resend-api-key
+SECRET_KEY=your-secret-key
 ```
-⚠️ .env は .gitignore に含めて、GitHub にアップロードしないでください。
 
 ### 3. テーブルの初期化
 
-以下のスクリプトを実行して、テーブルを作成します：
+次のコマンドでテーブルを作成します：
 
 ```bash
-python db.py;
+python db.py
 ```
 
-## ▶️ アプリの起動方法（Run the App）
+
+## ▶️ ローカル開発手順
 
 ### 1. リポジトリをクローン：
 
