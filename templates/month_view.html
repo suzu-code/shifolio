@@ -9,7 +9,7 @@
 <body>
   <div class="container">
     <nav class="sidebar">
-      <img src="{{ url_for('static', filename='シフト管理アプリロゴ2.png') }}" alt="Shifolio ロゴ">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Shifolio ロゴ">
       <ul>
         <li><a href="{{ url_for('add_staff', origin='month', start_date=dates[0].strftime('%Y-%m-%d')) }}">スタッフ追加</a></li>
         <li><a href="{{ url_for('staff_list') }}">スタッフ管理</a></li>

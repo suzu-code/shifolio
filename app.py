@@ -12,7 +12,7 @@ import psycopg2.extras
 
 app = Flask(__name__)
 #セッションキー　安全のためにやったほうがいいらしい
-app.secret_key = os.urandom(24)
+app.secret_key = os.getenv("SECRET_KEY")
 
 
 #データベースを初期化
@@ -573,29 +573,6 @@ def send_shift():
     today = date.today().isoformat()
     # 今日の日付もテンプレートに渡してデフォルト日付として表示できるようにする
     return render_template("send_shift.html", today=today)
-
-
-
-
-
-
-# @app.route('/staff')
-# def staff_list():
-#     conn = get_connection()
-#     cur = conn.cursor(dictionary=True)  
-
-#     cur.execute('SELECT * FROM staff')
-   
-#     staffs = cur.fetchall() 
-
-#     conn.close()
- 
-#     start_date = datetime.today()
-#     dates = [(start_date + timedelta(days=i)) for i in range(30)]
-    
-#     today = datetime.today().strftime('%Y-%m-%d')
-
-#     return render_template('staff_list.html', staffs=staffs, dates=dates, today=today)
 
 
 
