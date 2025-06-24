@@ -85,7 +85,7 @@ python db.py;
 ### 1. リポジトリをクローン：
 
    ```
-   git clone https://github.com/your-username/shifolio.git
+   git clone https://github.com/suzu-code/shifolio.git
    cd shifolio
    ```
 
@@ -126,8 +126,8 @@ python db.py;
    RESEND_API_KEY=your-resend-api-key
    ```
 
-### 3.resend_config.py.sample を resend_config.py にリネームします
+### 3. `resend_config.py` を編集し、APIキーを `.env` に記述した値に合わせてください
 
- ```
-cp resend_config.py.sample resend_config.py
- ```
+```python
+resend.api_key = os.getenv("RESEND_API_KEY")
+```
