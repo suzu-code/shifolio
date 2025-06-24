@@ -1,6 +1,5 @@
 # 機密情報やAPIキー
 .env
-resend_config.py
 
 # データベースファイル
 shift.db

@@ -6,6 +6,8 @@ from datetime import datetime, timedelta, date
 from flask import Response
 from resend_config import send_email
 from db import get_connection
+import psycopg2
+import psycopg2.extras
 
 
 app = Flask(__name__)
@@ -21,7 +23,7 @@ def init_db():
     # companyテーブル
     cur.execute("""
         CREATE TABLE IF NOT EXISTS company (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            id SERIAL PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
             password VARCHAR(255) NOT NULL
         )
@@ -30,7 +32,7 @@ def init_db():
     # staffテーブル
     cur.execute("""
         CREATE TABLE IF NOT EXISTS staff (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            id SERIAL PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
             position VARCHAR(255),
             max_days INT,
@@ -46,7 +48,7 @@ def init_db():
     # shiftテーブル
     cur.execute("""
         CREATE TABLE IF NOT EXISTS shift (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            id SERIAL PRIMARY KEY,
             staff_id INT,
             date DATE,
             start_time TIME,
@@ -78,10 +80,14 @@ def register_company():
         conn = get_connection()
         # .cursor()でSQL実行用のカーソルオブジェクトを作成
         cur = conn.cursor()
-        cur.execute("INSERT INTO company (name, password) VALUES (%s, %s)", (name, password))
+        # cur.execute("INSERT INTO company (name, password) VALUES (%s, %s)", (name, password))
+        # conn.commit()
+        cur.execute("INSERT INTO company (name, password) VALUES (%s, %s) RETURNING id",(name, password))
+        company_id = cur.fetchone()[0]  # 挿入された行のidを取得
         conn.commit()
+
         #SQLiteのlastrowid：SQLiteのカーソルオブジェクト(cursor)に用意されたプロパティ名。その接続で直前に追加された1件のIDを確実に返す。
-        company_id = cur.lastrowid
+        # company_id = cur.lastrowid
         conn.close()
 
         # fはf"..." の中に{}で変数や式を埋め込むことで、文字列の中に動的な値を簡単に入れられる機能
@@ -171,7 +177,9 @@ def add_staff():
         #フォームで送られてきた "available_days" という 複数選択可能なチェックボックスの値をリストとして取得。　",".join([...])=取得したリストをカンマ区切りの1つの文字列に変換
         available_days = ",".join(request.form.getlist("available_days"))
         #チェックボックスのon/offを判定して1or0を入力している
-        can_edit = 1 if request.form.get("can_edit") else 0
+        # can_edit = 1 if request.form.get("can_edit") else 0
+        #PostgreSQL の boolean 型は TRUE / FALSE（または true / false）であって、 1 / 0 では ない
+        can_edit = bool(request.form.get("can_edit"))
         #現在ログイン中の企業のIDをセッションから取得。スタッフと企業の紐付けのため
         company_id = session["company_id"]
 
@@ -249,7 +257,7 @@ def week_view(date):
 
     db = get_connection()
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM staff WHERE company_id=%s AND visible=1", (company_id,))
+    cursor.execute("SELECT * FROM staff WHERE company_id=%s AND visible=TRUE", (company_id,))
     staff = cursor.fetchall()
 
     query_shift = "SELECT start_time, end_time FROM shift WHERE staff_id=%s AND date=%s"
@@ -313,7 +321,9 @@ def month_view(date):
     cur = conn.cursor()
 
     # スタッフ一覧（ログイン企業のみ）
-    cur.execute("SELECT * FROM staff WHERE company_id=%s AND visible=1", (company_id,))
+    # cur.execute("SELECT * FROM staff WHERE company_id=%s AND visible=1", (company_id,))
+    cur.execute("SELECT * FROM staff WHERE company_id=%s AND visible=TRUE", (company_id,))
+
     staff = cur.fetchall()
     
     shifts = {}
@@ -567,14 +577,37 @@ def send_shift():
 
 
 
+
+
+# @app.route('/staff')
+# def staff_list():
+#     conn = get_connection()
+#     cur = conn.cursor(dictionary=True)  
+
+#     cur.execute('SELECT * FROM staff')
+   
+#     staffs = cur.fetchall() 
+
+#     conn.close()
+ 
+#     start_date = datetime.today()
+#     dates = [(start_date + timedelta(days=i)) for i in range(30)]
+    
+#     today = datetime.today().strftime('%Y-%m-%d')
+
+#     return render_template('staff_list.html', staffs=staffs, dates=dates, today=today)
+
+
+
+
 @app.route('/staff')
 def staff_list():
     conn = get_connection()
-    cur = conn.cursor(dictionary=True)  # ← ここで辞書形式ON
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)  # ← 辞書形式のカーソルを作成
 
     cur.execute('SELECT * FROM staff')
     # staffテーブルから全てのデータを取得し、staffsに格納　fetchall()で全行まとめて取り出してリスト
-    staffs = cur.fetchall()  # staffs[0]['name'] のようにアクセスできる
+    staffs = cur.fetchall()  # これで staffs[0]['name'] のようにアクセス可能
 
     conn.close()
     # 今日から30日分の日付リストを作成
@@ -584,6 +617,7 @@ def staff_list():
     today = datetime.today().strftime('%Y-%m-%d')
 
     return render_template('staff_list.html', staffs=staffs, dates=dates, today=today)
+
 
 
 
@@ -627,7 +661,7 @@ def one_day_view(date):
     conn = get_connection()
     c = conn.cursor()
 
-    c.execute("SELECT id, name FROM staff WHERE company_id = %s AND visible = 1", (company_id,))
+    c.execute("SELECT id, name FROM staff WHERE company_id = %s AND visible = TRUE", (company_id,))
     
     staff = c.fetchall()
     shifts = {}
@@ -655,7 +689,7 @@ def one_day_view(date):
 def staff_hide(staff_id):
     conn = get_connection()
     cursor = conn.cursor()  
-    cursor.execute('UPDATE staff SET visible=0 WHERE id=%s', (staff_id,))
+    cursor.execute('UPDATE staff SET visible=FALSE WHERE id=%s', (staff_id,))
     conn.commit()
     cursor.close() 
     conn.close()
@@ -668,7 +702,7 @@ def staff_hide(staff_id):
 def staff_show(staff_id):
     conn = get_connection()
     cursor = conn.cursor()  
-    cursor.execute('UPDATE staff SET visible=1 WHERE id=%s', (staff_id,))
+    cursor.execute('UPDATE staff SET visible=TRUE WHERE id=%s', (staff_id,))
     conn.commit()
     cursor.close() 
     conn.close()
