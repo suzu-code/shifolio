@@ -2,7 +2,7 @@ import os
 import csv
 import io
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, time
 from flask import Response
 from resend_config import send_email
 from db import get_connection
@@ -63,6 +63,7 @@ def init_db():
 
 # 初期化実行
 init_db()
+
 
 
 
@@ -157,7 +158,10 @@ def index():
         else:
             return redirect(url_for("week_view", date=request.form["date"]))
 
-    return render_template("index.html")
+    # return render_template("index.html")
+    today = datetime.today().strftime("%Y-%m-%d")
+    return redirect(url_for("week_view", date=today))
+
 
 
 
@@ -478,9 +482,37 @@ def export_csv():
         """, (staff_id, start_date_str, end_date_str))
         #結果をリストで取得
         shift_rows = cur.fetchall()
-        #各シフト情報に対して… {日付: "開始時刻 - 終了時刻"} の形式で保存
+        print(f"staff_id={staff_id}, shift_rows={shift_rows}")
+        #各シフト情報に対して… {日付: "開始時刻 - 終了時刻"} の形式で保存　元
+        # for row in shift_rows:
+        #     shifts[staff_id][row[0]] = f"{row[1]} - {row[2]}"  
+        
+        # for row in shift_rows:
+        #     print(row[1], type(row[1]))
+        #     if isinstance(row[0], (datetime, date)):
+        #         date_str_db = row[0].strftime('%Y-%m-%d')
+        #     else:
+        #         date_str_db = str(row[0])
+
+        #     shifts[staff_id][date_str_db] = f"{row[1]} - {row[2]}" 
+        #     print(type(row[0]), row[0])
+        
         for row in shift_rows:
-            shifts[staff_id][row[0]] = f"{row[1]} - {row[2]}"  #"09:00 - 17:00"形式
+        # 日付を文字列に変換
+            if isinstance(row[0], (datetime, date)):
+                date_str_db = row[0].strftime('%Y-%m-%d')
+            else:
+                date_str_db = str(row[0])
+            
+            # 時刻を文字列に変換（秒なし）
+            start_time_str = row[1].strftime('%H:%M') if isinstance(row[1], time) else str(row[1])
+            end_time_str = row[2].strftime('%H:%M') if isinstance(row[2], time) else str(row[2])
+
+            shifts[staff_id][date_str_db] = f"{start_time_str} - {end_time_str}"
+
+        
+
+
 
     conn.close()
 
